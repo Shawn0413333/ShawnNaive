@@ -1,0 +1,64 @@
+1. Student registration
+When you login:
+New registration [0]
+Already have account [1]
+
+[0] 
+-> Provide student ID
+-> Generate a new node (? -> it means student become his miner)
+-> Generate a wallet
+    * Key pair
+    * Student ID
+    * Address
+    * Balance
+
+[1] 
+-> Provide student ID? Exist in DB [1]: Not Exist in DB [0]
+-> Play the menu
+    * Review your key pair
+    * Take Attendance (Go to func 2)
+
+2. Attendance info recording
+
+2a. An attendance cert is generated and displayed:
+    * Student ID
+    * Even ID
+    * Timestamp
+
+    If you please confirmed? 
+        * Check valid (Go to func 3)
+        * If yes, input your private key for signing.
+        * Else No -> Exit
+
+    -> Generate a new block
+    -> System check if the block (difficulty/signature...) valid
+    -> Add into blockchain
+
+
+3. Mint
+* Display -> Public key validation vs Message + Signature 
+
+
+2b. Broadcast to other miners
+// pending
+
+    * Reward:
+        50 points sent to students' balance 
+
+
+4. Teachers' query
+When you login:
+New registration [0]
+Already have account [1] -> Input "Teacher"
+* Check attendance record
+
+    (Call data from the Block DB)
+
+    * Check with time range (in default, the recent semester)
+    * Check with the class (this semesters’ course day x students ID?)
+
+
+
+
+
+
