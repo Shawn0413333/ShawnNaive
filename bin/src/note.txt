@@ -22,7 +22,7 @@ Already have account [1]
 
 2a. An attendance cert is generated and displayed:
     * Student ID
-    * Even ID
+    * Event ID
     * Timestamp
 
     If you please confirmed? 
@@ -33,6 +33,7 @@ Already have account [1]
     -> Generate a new block
     -> System check if the block (difficulty/signature...) valid
     -> Add into blockchain
+    -> broadcast
 
 
 3. Mint
