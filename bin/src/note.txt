@@ -60,6 +60,12 @@ Already have account [1] -> Input "Teacher"
 
 
 
+ *** updated noted:
+ - add boardcase
+ - mind the input/output in the transactions
+ - rewrite the constructor part in the node -> boardcast?
+
+
 
 
 
