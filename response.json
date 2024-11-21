@@ -1,0 +1,4 @@
+[
+    {"student_id": "12345", "event_id": "Event1", "timestamp": "2024-01-15T10:00:00", "class_id": "ClassA"},
+    {"student_id": "67890", "event_id": "Event1", "timestamp": "2024-01-15T10:00:00", "class_id": "ClassA"}
+]
