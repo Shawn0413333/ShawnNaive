@@ -30,7 +30,7 @@ console.log("Balance: " + R.sum(R.map(R.prop('amount'), blockchain.getUnspentTra
 
 // 2a. Generation of attendance cert
 let attendTime = new Date();
-message = studentID + "\n" + attendTime ;
+message = studentID + "\n" + attendTime;
 
 // Print the Attendance Cert, and request user for signing
 console.log(message);
@@ -61,8 +61,6 @@ cipher = message + "; Signature: " + signature;
 
 
 
-
-
 blockchain.addTransaction(Transaction.fromJson({
     id: CryptoUtil.randomId(64),
     hash: null,
@@ -74,16 +72,20 @@ let newblock = miner.mine(myPublicKey);
 node.checkReceivedBlocks(newblock);
 
 
-blockchain.addTransaction(Transaction.fromJson({
-    id: CryptoUtil.randomId(64),
-    hash: null,
-    type: 'COMP4431',
-    data: cipher,
-}));
+// blockchain.addTransaction(Transaction.fromJson({
+//     id: CryptoUtil.randomId(64),
+//     hash: null,
+//     type: 'COMP4431',
+//     data: cipher,
+// }));
 
-newblock = miner.mine(myPublicKey);
-node.checkReceivedBlocks(newblock);
+// newblock = miner.mine(myPublicKey);
+// node.checkReceivedBlocks(newblock);
 
 
 // //boardcast the mining to other users
+
+
+
+
 
