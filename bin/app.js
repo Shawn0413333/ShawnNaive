@@ -2,15 +2,13 @@ const { exec } = require('child_process');
 const CryptoUtil = require('../lib/util/cryptoUtil');
 const Wallet = require('../lib/operator/wallet');
 const prompt = require("prompt-sync")();
-
-
 const OPERATOR_FILE = 'wallets.json';
 const Db = require('../lib/util/db');
 const Wallets = require('../lib/operator/wallets');
 
 
 class App {
-    constructor(port, dbName = "1") {
+    constructor(port, dbName) {
         this.PORT = port;
         this.db = new Db('data/' + dbName + '/' + OPERATOR_FILE, new Wallets());
         this.wallet = new Wallet();
@@ -18,6 +16,7 @@ class App {
 
     creatStudentWallet(studentId) {
         return new Promise((resolve, reject) => {
+
             // Get all wallets. See if any wallet has been registered.
             exec(`curl -s -X GET --header 'Accept: application/json' 'http://localhost:${this.PORT}/operator/wallets'`, (error, stdout, stderr) => {
 
@@ -37,6 +36,7 @@ class App {
                                 if (stdout) {
                                     // Get the wallet
                                     this.wallet = JSON.parse(JSON.stringify(this.db.read(Wallets)[0]));
+                                    console.log(this.wallet);
                                     let pk = this.wallet.keyPairs[0].publicKey;
 
                                     // Create transaction in the type of "registration" containing student ID and public key. Mine into blockchain
@@ -47,7 +47,8 @@ class App {
                                         
                                                 if (stdout) {
                                                     console.log("Student ID and public key is registered into blockchain.");
-                                                    resolve(this.wallet);
+                                                    // resolve(this.wallet);
+                                                    resolve(true);
                                                 }
                                             });
                                         }
@@ -64,10 +65,10 @@ class App {
                     // Verify the user password
                     if (this.wallet.passwordHash === CryptoUtil.hash(inputPassword)) {
                         console.log("Correct password.");
-                        resolve(this.wallet);
+                        resolve(true);
                     } else {
                         console.log("Incorrect password.");
-                        resolve(null);
+                        resolve(false);
                     }
                 }
             });
@@ -76,8 +77,6 @@ class App {
 
     creatAttendanceCert(studentId){
         return new Promise((resolve, reject) => {
-
-            // this.wallet = JSON.parse(JSON.stringify(this.db.read(Wallets)[0])); //delete
 
             // Ask for the course Id (as the event Id)
             let courseId = prompt("Please input the course ID:");
@@ -122,31 +121,55 @@ class App {
     }
 
     mineAttendanceCert(){
-        this.wallet = JSON.parse(JSON.stringify(this.db.read(Wallets)[0])); //delete
+        return new Promise((resolve, reject) => {
 
-        // get all unconfirmed transaction (attendance certificate)
-        exec(`curl -s -X GET --header 'Accept: application/json' 'http://localhost:${this.PORT}/blockchain/transactions'`, (error, stdout, stderr) => {
-            if (stdout == "[]"){
-                console.log("No unmined attandance certificate.")
+            // get all unconfirmed transaction (attendance certificate)
+            exec(`curl -s -X GET --header 'Accept: application/json' 'http://localhost:${this.PORT}/blockchain/transactions'`, (error, stdout, stderr) => {
+                if (stdout == "[]"){
+                    console.log("No unmined attandance certificate.")
+                    resolve();
+                }
+                else{                
+                    // mine unconfirmed transactions
+                    exec(`curl -s -X POST --header 'Content-Type: application/json' -d '{ "rewardAddress":"${this.wallet.keyPairs[0].publicKey}" }' 'http://localhost:${this.PORT}/miner/mine'`, (error, stdout, stderr) => {
+                        if (stdout){
+                            console.log("A block containing valid attendance certificates has been mined into blockchain.\nAs mining reward, 100 points are saved into your wallet.")
+                            
+                            // get wallet balance
+                            exec(`curl -s -X GET --header 'Accept: application/json' 'http://localhost:${this.PORT}/operator/${this.wallet.keyPairs[0].publicKey}/balance'`, (error, stdout, stderr) => {
+                                if (stdout){
+                                    console.log(`Balance: ${JSON.parse(stdout).balance}`)
+                                }else{
+                                    console.log("Retrival of balance fails.");
+                                }
+                                resolve();
+                            });
+                        }else{
+                            console.log("Mining fails.")
+                            resolve();
+                        }
+                    });
+                }
+            });
+        });
+    }
 
-            }
-            // else{                
-            //     // mine unconfirmed transactions
-            //     exec(`curl -s -X POST --header 'Content-Type: application/json' -d '{ "rewardAddress":"${pk}" }' 'http://localhost:${this.PORT}/miner/mine'`, (error, stdout, stderr) => {
-            //         if (stdout){
-            //             console.log("A block containing valid attendance certificates has been mined into blockchain.\n As mining reward, 100 points are saved into your wallet.")
-                        
-            //             // get wallet balance
-            //             exec(`curl -s -X GET --header 'Accept: application/json' 'http://localhost:${this.PORT}/operator/${pk}/balance'`, (error, stdout, stderr) => {
-            //                 if (stdout){
-            //                     console.log(`Balance: ${stdout}`)
-            //                 }
-            //             });
-            //         }else{
-            //             console.log("Mining fails.")
-            //         }
-            //     });
-            // }
+    viewWallet(){
+        return new Promise((resolve, reject) => {
+            // get wallet balance
+            exec(`curl -s -X GET --header 'Accept: application/json' 'http://localhost:${this.PORT}/operator/${this.wallet.keyPairs[0].publicKey}/balance'`, (error, stdout, stderr) => {
+                if (stdout){
+                    let message = 
+                    `Wallet Id: ${this.wallet.id}\n`+
+                    `Public key: ${this.wallet.keyPairs[0].publicKey}\n`+
+                    `Secret key: ${this.wallet.keyPairs[0].secretKey}\n`+
+                    `Balance: ${JSON.parse(stdout).balance}`;       
+                    console.log(message);
+                }else{
+                    console.log("Retrival of balance fails.");
+                }
+                resolve();
+            });
         });
     }
 
@@ -163,73 +186,3 @@ class App {
     }
 }
 module.exports = App;
-
-
-
-// class App{
-//     constructor(port, dbName = "1"){
-//         this.PORT = port;
-//         this.db = new Db('data/' + dbName + '/' + OPERATOR_FILE, new Wallets());
-//         this.wallet = new Wallet();
-
-//     }
-
-//     creatStudentWallet(studentId){
-
-//         // Get all wallet. See if any wallet has been registed.
-//         exec(`curl -s -X GET --header 'Accept: application/json' 'http://localhost:${this.PORT}/operator/wallets'`, (error, stdout, stderr) => {
-            
-//             // If there is no wallet, register one.
-//             if (stdout == "[]"){
-//                 // let password = prompt("Please input your passoword:");
-//                 let password = "f f f f f";
-//                 // Generation of wallet from password
-//                 exec(`curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"password": "${password}"}' 'http://localhost:${this.PORT}/operator/wallets'`, (error, stdout, stderr) => {
-//                     if(stdout){
-//                         // get Wallet ID
-//                         this.wallet.id = JSON.parse(stdout).id;
-
-//                         // If the wallet is successfully registered, generate the keypairs (public key and secret key)
-//                         exec(`curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'password: ${password}' 'http://localhost:${this.PORT}/operator/wallets/${this.wallet.id}/addresses'`, (error, stdout, stderr) => {
-//                             if(stdout){
-//                                 // get the wallet
-//                                 this.wallet = JSON.parse(JSON.stringify(this.db.read(Wallets)[0]));
-//                                 let pk = this.wallet.keyPairs[0].publicKey;
-
-//                                 // Create transaction in the type of "registration" containing student ID and public key. Mine into blockchain
-//                                 exec(`curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"studentId": "${studentId}","publicKey": "${pk}"}' 'http://localhost:${this.PORT}/blockchain/registration'`, (error, stdout, stderr) => {
-//                                     if(stdout){
-//                                         exec(`curl -s -X POST --header 'Content-Type: application/json' -d '{ "rewardAddress":"${pk}" }' 'http://localhost:${this.PORT}/miner/mine'`, (error, stdout, stderr) => {
-//                                             if(stdout){
-//                                                 console.log("Student ID and public key is registered into blockchain.");
-//                                                 return this.wallet;
-//                                             };
-//                                         });
-//                                     };
-//                                 });
-//                             };
-//                         });
-//                     };
-//                 });
-//             }
-//             else {
-//                 // If there has been a wallet, ask user to login the wallet
-//                 this.wallet = JSON.parse(JSON.stringify(this.db.read(Wallets)[0]));
-//                 // let inputPassword = prompt("Please input your passoword:");
-//                 let inputPassword = "f f f f f";
-
-//                 // Verify the user passoword
-//                 if(this.wallet.passwordHash == CryptoUtil.hash(inputPassword)){
-//                     console.log("Correct password.");
-//                     return this.wallet;
-//                 }else{
-//                     console.log("Incorrect password.");
-//                 }
-//             }
-//         });
-
-//         return null;
-//     }
-
-// }
-// module.exports = App;

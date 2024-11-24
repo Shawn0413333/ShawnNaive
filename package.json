@@ -12,8 +12,7 @@
     "naivecoin": "bin/naivecoin.js"
   },
   "scripts": {
-    "main": "node bin/main.js",
-    "try": "node bin/test.js",
+    "main": "node bin/test.js",
     "start": "node bin/naivecoin.js",
     "compose:up": "docker-compose up",
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
