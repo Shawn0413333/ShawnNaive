@@ -13,12 +13,29 @@ console.log(`using with the port ${PORT}`);
 
 let app = new App(PORT);
 
+
 // Function 1: Student information registration
-// let studentId = prompt("Please input your student ID:");
-let studentId = "20063043d";
-let wallet = app.creatStudentWallet(studentId);
+//let studentId = prompt("Please input your student ID:");
+// let studentId = "20063043d";
+// app.creatStudentWallet(studentId).then(wallet => {
+//     // console.log(wallet);
+//     // add the below stuff here
 
 
+// }).catch(error => {
+//     console.error(error);
+// });
 
-// console.log(wallet);
+let exit = false, command = null;
+while(!exit){
+    app.getMenu();
+    command = prompt("Please input your command (0-4): ");
+    if (command == 0){
+        exit = true;
+    }else if(command == 1){
+        // Function 2: generation of attendance cert
+        
+    }
 
+    
+}
