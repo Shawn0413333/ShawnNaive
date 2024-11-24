@@ -1,0 +1,70 @@
+## Run scripts
+node bin/naivecoin.js -p 3001 --name 1
+node main.js --port 3001
+
+## Function 1
+
+// Create a new wallet from password
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"password": "t t t t t"}' 'http://localhost:3001/operator/wallets'
+ - by password
+
+// Generation of public key and private key
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'password: t t t t t' 'http://localhost:3001/operator/wallets/991809110c62247fda8ebd272ec3c92fc4fb31905c43ad6cf9d9a6077194d263/addresses'
+ - by password, walletId
+
+// Get wallet by ID
+curl -X GET --header 'Accept: application/json' 'http://localhost:3001/operator/wallets/991809110c62247fda8ebd272ec3c92fc4fb31905c43ad6cf9d9a6077194d263'
+ - by walletId
+
+// For registration in blockchain, include the publicKey and the studentID in the transaction of the very first block:
+const transaction = { from: publicKey, studentID: studentID }
+
+// mine a block
+curl -X POST --header 'Content-Type: application/json' -d '{ "rewardAddress":"c3c96504e432e35caa94c30034e70994663988ab80f94e4b526829c99958afa8" }' 'http://localhost:3001/miner/mine'
+
+// create Student registration -> Transaction with type "Registration"
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"studentId": "20063049d","publicKey": "c3c96504e432e35caa94c30034e70994663988ab80f94e4b526829c99958afa8"}' 'http://localhost:3001/blockchain/registration'
+
+
+## Function 2
+
+// genereate attendance certificate
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"studentId": "20063049d","eventId": "COMP4001"}' 'http://localhost:3001/operator/generateAttendanceCert'
+
+// sign attendance certificate
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
+  "attendanceCert": {
+    "timestamp": "Sun Nov 24 2024 01:04:12 GMT+0800 (Hong Kong Standard Time)",
+    "studentId": "20063043d",
+    "course": "COMP4001"
+  },
+  "addressId": "c3c96504e432e35caa94c30034e70994663988ab80f94e4b526829c99958afa8",
+  "secretKey": "838db37e724abeb5b0ead4e9063808b03c2a84a093d0937703dfa415a71d1893c3cad7b461f13cdda6afda604120dc1f5ee78967cfd32f1a851ea5aa5a54e244402404542f0d1554f64ac4a82df84b6e5aedde3e9bb358bb8c92cfc6a4f9db9ad9fef19b76e4fec0bfc32f0edcd9923e54863a192acd9fc9c0e62852c904a02ebf726d4ecf999bd48096a4f670b5e611468704b957847b4c3dd59c181b9e2835c4d6f9741b2bf0e4fb8ac690567463dcd2df4e4124ac844163689f4438c88f44504e2a41f5671dde80c9417355626d9689e8c74df9cc730f11d0756474165733d00e3460d568e54f688ed122d44bf90fe3d194067a5aa68f88ae24fb6d4fc9bd29cf41d05bb6115e0f393a6f4fbfa74767d36b9be248e7d27b0cf55497b67ccadb2cd4369aa172a9c5e130140472eb6e86de590b75dd70b309fad2420b767abaf3e4417caee018012b835114ccd822dc355f406935c7cbfe5ab105bb31968c9f82d76baff8ec5a6b6df37d6557d395c006cba17636811cfa3e45915883b8993791dd2ed23cdd58c203aa61e1602a7ec44c1162122b480f45cd74c30c7192759df040917eeb54c3bc4fab95317d5f85d77d810f676ff4993d20da53985e32f788498fed95bfa67fbcfe1e8eadc744390d17e65468b6738afcab6692f1b43bd323fc9c0985b152df5889b62cb979f24b2614fae0ebc6c3be91286cfc5b18a139eb"
+}' 'http://localhost:3001/operator/signAttendanceCert'
+
+
+## Function 3
+// get all unconfirmed transaction
+curl -X GET --header 'Accept: application/json' 'http://localhost:3001/blockchain/transactions'
+
+// add attendance transaction + check signature
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"timestamp":"Sun Nov 24 2024 01:04:12 GMT+0800 (Hong Kong Standard Time)","studentId":"20063043d","course":"COMP4001","signature":"46c152e5819b62eab98729b6c67fe9914ebb288990255f74050e5819430381fa1f5c9027203871b96808e746b1ddf577f13c21928cb89b2589d1b1988b731604","address":"c3c96504e432e35caa94c30034e70994663988ab80f94e4b526829c99958afa8"}' 'http://localhost:3001/blockchain/attendance'
+
+// mine a block
+curl -X POST --header 'Content-Type: application/json' -d '{ "rewardAddress":"c3c96504e432e35caa94c30034e70994663988ab80f94e4b526829c99958afa8" }' 'http://localhost:3001/miner/mine'
+
+
+
+
+
+
+
+
+20063043d
+f f f f f
+
+`curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{\"password\": "f f f f f"}' 'http://localhost:${this.PORT}/operator/wallets'
+
+
+
+
